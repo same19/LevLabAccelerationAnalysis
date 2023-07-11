@@ -68,7 +68,7 @@ def main():
     for i in singleInt:
         lastValue += i/scale
         doubleInt.append(lastValue)
-    plot(timeX, doubleInt, "Time (s)", "Displacement (nm) - Double Integral")
+    plot(timeX, doubleInt, "Time (s)", "Displacement (m) - Double Integral")
 
     arduino.close()
 
