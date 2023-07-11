@@ -2,8 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def plot(x,y,labelX="x",labelY="y"):
-    plt.figure(figsize=(10,5))
-    plt.plot(x, y)
-    plt.xlabel(labelX)
-    plt.ylabel(labelY)
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    ax.plot(x, y)
+    ax.set_xlabel(labelX)
+    ax.set_ylabel(labelY)
     plt.show()
