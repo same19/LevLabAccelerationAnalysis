@@ -59,13 +59,16 @@ def main():
 
     singleInt = []
     lastValue = 0
-    adjustedAcc = np.multiply(row1, 0.500 * 9.81) #2 V = 1 g, 9.81 m/s^2 = 1g
+    bias = 0
+    adjustedAcc = np.add(np.multiply(row1, 0.500 * 9.81),bias) #2 V = 1 g, 9.81 m/s^2 = 1g
     for i in adjustedAcc:
         lastValue += i/scale
         singleInt.append(lastValue)
     doubleInt = []
     lastValue = 0
-    for i in singleInt:
+    bias2 = 0
+    adjustedSingleInt = np.add(singleInt,bias2)
+    for i in adjustedSingleInt:
         lastValue += i/scale
         doubleInt.append(lastValue)
     plot(timeX, doubleInt, "Time (s)", "Displacement (m) - Double Integral")
