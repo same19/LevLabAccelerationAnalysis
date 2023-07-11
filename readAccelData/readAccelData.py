@@ -35,27 +35,40 @@ def main():
     num = 10000.0
     data, t = np.array(log(arduino, num))
     scale = num * 10**9 / t
+    print("Measurement Rate: "+str(scale))
 
     row0 = [row[0] for row in data]
     row1 = [row[1] for row in data]
     timeX = np.multiply(row0,1/scale)
-    # plot(timeX, first,"Time (s)", "Voltage (V)")
+    # plot(timeX, row1,"Time (s)", "Voltage (V)")
 
     f = np.fft.rfft(row1)
     fabs = np.abs(f)
-    freqs = np.multiply(np.fft.fftfreq(f.shape[-1]), scale)
+    freqs = np.multiply(np.fft.fftfreq(f.shape[-1]), scale/2.0)
 
     minI = 1
-    maxI = 2000
-    print("Measurement Rate: "+str(scale))
+    maxI = 4000
     x = freqs[minI:maxI]
     y = fabs[minI:maxI]
     plot(x,y,"Frequency (Hz)","Amplitude  - Acceleration")
 
     fDoubleInt = [f[i]/(4 * (math.pi ** 2) * (freqs[i]**2)) for i in range(len(f))]
-    absDoubleInt = np.abs(f)
+    absDoubleInt = np.abs(fDoubleInt)
     y = absDoubleInt[minI:maxI]
     plot(x,y,"Frequency (Hz)","Amplitude - Displacement")
+
+    singleInt = []
+    lastValue = 0
+    adjustedAcc = np.multiply(row1, 0.500 * 9.81) #2 V = 1 g, 9.81 m/s^2 = 1g
+    for i in adjustedAcc:
+        lastValue += i/scale
+        singleInt.append(lastValue)
+    doubleInt = []
+    lastValue = 0
+    for i in singleInt:
+        lastValue += i/scale
+        doubleInt.append(lastValue)
+    plot(timeX, doubleInt, "Time (s)", "Displacement (nm) - Double Integral")
 
     arduino.close()
 
