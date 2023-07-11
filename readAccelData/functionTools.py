@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import numpy as np
-
 def plot(x,y,labelX="x",labelY="y"):
     fig = plt.figure()
     ax = fig.add_axes([0,0,1,1])
