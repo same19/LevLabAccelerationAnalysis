@@ -1,4 +1,5 @@
 {
     "board": "arduino:avr:uno",
-    "sketch": "readAccelData/readAccelData.ino"
+    "sketch": "readAccelData/readAccelData.ino",
+    "port": "/dev/tty.usbmodem1201"
 }

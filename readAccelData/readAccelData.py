@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import math
 from functionTools import *
 
+circuit_gain = 100
+
 def connect():
     ports = serial_ports()
     # print(ports)
@@ -32,7 +34,7 @@ def log(arduino, totalTime): #in seconds
 def main():
     arduino = connect()
 
-    num = 10000.0
+    num = 20000
     data, t = np.array(log(arduino, num))
     scale = num * 10**9 / t
     print("Measurement Rate: "+str(scale))
@@ -40,30 +42,37 @@ def main():
     row0 = [row[0] for row in data]
     row1 = [row[1] for row in data]
     timeX = np.multiply(row0,1/scale)
-    # plot(timeX, row1,"Time (s)", "Voltage (V)")
+    plot(timeX, row1,"Time (s)", "Voltage (V)")
 
     f = np.fft.rfft(row1)
     fabs = np.abs(f)
     freqs = np.multiply(np.fft.fftfreq(f.shape[-1]), scale/2.0)
 
     minI = 1
-    maxI = 4000
+    maxI = 2000
     x = freqs[minI:maxI]
     y = fabs[minI:maxI]
     plot(x,y,"Frequency (Hz)","Amplitude  - Acceleration")
 
-    fDoubleInt = [f[i]/(4 * (math.pi ** 2) * (freqs[i]**2)) for i in range(len(f))]
+    minI = 15
+    maxI = 400
+    fDoubleInt = [f[i]/(4 * (math.pi ** 2) * (freqs[i]**2)) if freqs[i] != 0 else 0 for i in range(len(f))]
     absDoubleInt = np.abs(fDoubleInt)
+    freqs = np.multiply(np.fft.fftfreq(absDoubleInt.shape[-1]), scale/2.0)
+    x = freqs[minI:maxI]
     y = absDoubleInt[minI:maxI]
     plot(x,y,"Frequency (Hz)","Amplitude - Displacement")
 
     singleInt = []
     lastValue = 0
-    bias = 0
-    adjustedAcc = np.add(np.multiply(row1, 0.500 * 9.81),bias) #2 V = 1 g, 9.81 m/s^2 = 1g
+    bias = 0 # -29.702 * scale / len(row1)
+    adjustedAcc = np.add(np.multiply(row1, 0.500 * 9.81 / circuit_gain),bias) #2 V * gain = 1 g, 9.81 m/s^2 = 1g
     for i in adjustedAcc:
         lastValue += i/scale
         singleInt.append(lastValue)
+    afterBias = -1 * lastValue / len(row1)
+    singleInt = [singleInt[i] + afterBias*i for i in range(len(singleInt))]
+    plot(timeX, singleInt, "Time (s)", "Velocity (m/s) - Single Integral")
     doubleInt = []
     lastValue = 0
     bias2 = 0
