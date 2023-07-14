@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import math
 from functionTools import *
 
-circuit_gain = 100
+circuit_gain = 250
 
 def connect():
     ports = serial_ports()
@@ -55,7 +55,7 @@ def main():
     plot(x,y,"Frequency (Hz)","Amplitude  - Acceleration")
 
     minI = 15
-    maxI = 400
+    maxI = 700
     fDoubleInt = [f[i]/(4 * (math.pi ** 2) * (freqs[i]**2)) if freqs[i] != 0 else 0 for i in range(len(f))]
     absDoubleInt = np.abs(fDoubleInt)
     freqs = np.multiply(np.fft.fftfreq(absDoubleInt.shape[-1]), scale/2.0)
@@ -80,7 +80,9 @@ def main():
     for i in adjustedSingleInt:
         lastValue += i/scale
         doubleInt.append(lastValue)
-    plot(timeX, doubleInt, "Time (s)", "Displacement (m) - Double Integral")
+    afterBias = -1 * lastValue / len(row1)
+    doubleInt = [doubleInt[i] + afterBias*i for i in range(len(doubleInt))]
+    plot(timeX, np.multiply(doubleInt,10**9), "Time (s)", "Displacement (nm) - Double Integral")
 
     arduino.close()
 
